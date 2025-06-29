@@ -60,14 +60,17 @@ function displayCurrentWeather(data) {
   weatherContent.classList.remove("hidden");
 }
 
-// Show 5-day forecast
+//Show next 5 days forecast 
 function displayForecast(list) {
   forecastContainer.innerHTML = "";
   const datesShown = [];
+  const today = new Date().toDateString();
 
   list.forEach((item) => {
     const date = new Date(item.dt * 1000);
     const dateString = date.toDateString();
+
+    if (dateString === today) return; // Skip today
 
     if (!datesShown.includes(dateString)) {
       datesShown.push(dateString);
@@ -111,7 +114,7 @@ async function fetchWeatherByCity(city) {
 
     saveToLocalStorage(city);
     renderRecentSearches();
-    recentSearchesDiv.classList.add("hidden"); // Hide dropdown
+    recentSearchesDiv.classList.add("hidden");
   } catch (error) {
     showError(error.message);
   }
@@ -153,11 +156,10 @@ function saveToLocalStorage(city) {
   let cities = JSON.parse(localStorage.getItem("recentCities")) || [];
   city = city.toLowerCase();
 
-  // Remove if already in list
   cities = cities.filter((c) => c !== city);
-  cities.unshift(city); // Add to top
+  cities.unshift(city);
 
-  // Only keep 5
+    // Only keep 5
   if (cities.length > 5) {
     cities.pop();
   }
@@ -198,7 +200,7 @@ function initWeatherApp() {
   setTheme();
   renderRecentSearches();
 
-  // When Search button clicked
+    // When Search button clicked
   searchBtn.addEventListener("click", () => {
     const city = cityInput.value.trim();
     if (!city) {
@@ -208,7 +210,7 @@ function initWeatherApp() {
     fetchWeatherByCity(city);
   });
 
-  // When Enter key pressed
+    // When Enter key pressed
   cityInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter") {
       const city = cityInput.value.trim();
@@ -220,17 +222,15 @@ function initWeatherApp() {
     }
   });
 
-  // When location button clicked
+   // When location button clicked
   locationBtn.addEventListener("click", fetchWeatherByLocation);
 
-  // Show dropdown when user clicks input
   cityInput.addEventListener("focus", () => {
     if (recentList.childElementCount > 0) {
       recentSearchesDiv.classList.remove("hidden");
     }
   });
 
-  // Hide dropdown when clicking outside
   document.addEventListener("click", (e) => {
     if (!recentSearchesDiv.contains(e.target) && e.target !== cityInput) {
       recentSearchesDiv.classList.add("hidden");
